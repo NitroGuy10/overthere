@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>overthere</title>
+
+        <meta name="description" content="it's over there">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <style>
+            body {
+                text-align: center;
+                background-color: #eee;
+            }
+            textarea {
+                margin-left: 0 auto;
+                margin-right: 0 auto;
+                width: 90%;
+                max-width: 800px;
+            }
+            h1 {
+                font-size: 50px;
+                margin: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>overthere</h1>
+        <p title="it's over there">where is it?</p>
+        <p><textarea id="submission-box" rows="10" placeholder="place each link on a new line" wrap="OFF" oninput="checkLength()"></textarea></p>
+        <p><button id="submit-button" onclick="submit()">submit</button></p>
+
+        <script>
+            let textarea = document.getElementById("submission-box")
+            let button = document.getElementById("submit-button")
+
+            function submit ()
+            {
+
+            }
+
+            function checkLength ()
+            {
+                if (textarea.value.length > 1000)
+                {
+                    button.disabled = true
+                    button.innerHTML = "must be 1000 characters or less"
+                }
+                else
+                {
+                    button.disabled = false
+                    button.innerHTML = "submit"
+                }
+                console.log("piss!")
+            }
+        </script>
+    </body>
+</html>
