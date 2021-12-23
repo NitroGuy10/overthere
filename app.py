@@ -1,7 +1,7 @@
 from os.path import exists
 import random
-from flask import Flask, request, jsonify
-# import sqlite3
+from flask import Flask, request, jsonify, render_template
+import sqlite3
 
 
 app = Flask(__name__)
@@ -30,12 +30,30 @@ def create_entry():
     # Ensure proper length
     if len(data) > 1000:
         return jsonify({"invalidLength": True, "url": request.base_url[:-6] + "full-commitment"})
+    # Ensure the database is not full
+    global next_entry_index
+    if next_entry_index // word_list_length >= word_list_length:
+        return jsonify({"databaseFull": True})
+    # Add entry to the database
+    connection = sqlite3.connect("overthere.db")
+    cursor = connection.cursor()
+    print(request.data)
+    cursor.execute("INSERT INTO link_pages (url, links) VALUES (?, ?);",
+                   (generate_link_name(next_entry_index), request.data.replace(b"\\n", b"\n")))
+    connection.commit()
+    print("Created new link page:", generate_link_name(next_entry_index))
+    next_entry_index += 1
+    return jsonify({"url": request.base_url[:-6] + generate_link_name(next_entry_index - 1)})
 
 
 @app.route("/<link_name>")
 def serve_links(link_name):
-    """Serve a link page if it exists"""
-    return "<p>" + link_name + "</p>"
+    """Serve a link page from the database if it exists"""
+    connection = sqlite3.connect("overthere.db")
+    cursor = connection.cursor()
+    links = cursor.execute("SELECT links FROM link_pages WHERE url=?;", (link_name,)).fetchone()[0].decode()[1:-1]
+
+    return render_template("overthere.html.jinja", links=links.split("\n"), url=link_name)
 
 
 if __name__ == "__main__":
@@ -77,14 +95,21 @@ if __name__ == "__main__":
     url_plural_noun_sequence = random.sample(range(word_list_length), word_list_length)
 
     # Set next_entry_index to the... index of the next entry
-    if False:  # TODO if database exists
-        # TODO set next_index to the NUMBER OF ENTRIES in the database
-        pass
+    global next_entry_index
+    next_entry_index = 0
+    if exists("overthere.db"):
+        connection = sqlite3.connect("overthere.db")
+        cursor = connection.cursor()
+        next_entry_index = cursor.execute("SELECT COUNT(url) FROM link_pages;").fetchone()[0]
+        print("There are {} entries in the database".format(next_entry_index))
     else:
-        next_entry_index = 0
+        raise FileNotFoundError("overthere.db not found; create a new database by running create.py")
 
-    print(generate_link_name(next_entry_index))
-
-
+    # TODO tests to run
+    # sql injection
+    # html injection
+    # database is full
+    # create/ with string of max length
+    # create/ with string too long
 
     app.run(host="0.0.0.0", port=25565)

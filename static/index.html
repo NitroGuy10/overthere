@@ -47,17 +47,24 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    textarea.hidden = true
-                    button.hidden = true
-                    document.getElementById("where-is-it").hidden = true
-                    document.getElementById("url-a").innerHTML = data.url
-                    if (data.invalidLength)
+                    if (data.databaseFull)
                     {
-                        document.getElementById("url-a").href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                        document.getElementById("url-h2").innerHTML = "the database is full"
                     }
                     else
                     {
-                        document.getElementById("url-a").href = data.url
+                        textarea.hidden = true
+                        button.hidden = true
+                        document.getElementById("where-is-it").hidden = true
+                        document.getElementById("url-a").innerHTML = data.url
+                        if (data.invalidLength)
+                        {
+                            document.getElementById("url-a").href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                        }
+                        else
+                        {
+                            document.getElementById("url-a").href = data.url
+                        }
                     }
                 })
             }

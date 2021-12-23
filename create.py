@@ -5,8 +5,9 @@ connection = sqlite3.connect("overthere.db")
 cursor = connection.cursor()
 
 cursor.execute("""
-    CREATE TABLE links (
-        link varchar(1000)
+    CREATE TABLE link_pages (
+        url varchar(100),
+        links varchar(1000)
     );
 """)
 
