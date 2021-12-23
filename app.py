@@ -1,7 +1,10 @@
 from os.path import exists
 import random
+from flask import Flask, request, jsonify
 # import sqlite3
-# import flask
+
+
+app = Flask(__name__)
 
 
 def generate_link_name(index):
@@ -12,6 +15,27 @@ def generate_link_name(index):
     return "{}-{}".format(
         adjectives[index % word_list_length],
         plural_nouns[(index + noun_index_offset) % word_list_length])
+
+
+@app.route("/")
+def serve_index():
+    """Serve index.html"""
+    return app.send_static_file("index.html")
+
+
+@app.route("/create", methods=["POST"])
+def create_entry():
+    """Create an entry in the database"""
+    data = request.data
+    # Ensure proper length
+    if len(data) > 1000:
+        return jsonify({"invalidLength": True, "url": request.base_url[:-6] + "full-commitment"})
+
+
+@app.route("/<link_name>")
+def serve_links(link_name):
+    """Serve a link page if it exists"""
+    return "<p>" + link_name + "</p>"
 
 
 if __name__ == "__main__":
@@ -60,3 +84,7 @@ if __name__ == "__main__":
         next_entry_index = 0
 
     print(generate_link_name(next_entry_index))
+
+
+
+    app.run(host="0.0.0.0", port=25565)

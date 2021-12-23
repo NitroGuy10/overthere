@@ -17,10 +17,39 @@
                 font-size: 50px;
                 margin: 10px;
             }
+            table {
+                margin-left: auto;
+                margin-right: auto;
+                /*width: 90%;*/
+                max-width: 800px;
+                
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+            td {
+                padding: 20px;
+                padding-right: 50px;
+            }
+            ol {
+                text-align: left;
+            }
+            li {
+                padding-bottom: 10px;
+                word-break: break-all;
+            }
         </style>
     </head>
     <body>
         <h1>overthere</h1>
+        <h2>{{ page_link_name }}</h2>
         <p>whoever sent you this wants you to use these links</p>
+        <br>
+        <table><tr><td>
+            <ol>
+            {% for link in links %}
+                <li><a href="{{ link }}">{{ link }}</a></li>
+            {% endfor %}
+            </ol>
+        </tr></table></td>
     </body>
 </html>

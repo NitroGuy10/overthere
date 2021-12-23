@@ -25,11 +25,12 @@
             }
         </style>
     </head>
-    <body>
+    <body onload="checkLength()">
         <h1>overthere</h1>
-        <p title="it's over there">where is it?</p>
+        <p id="where-is-it" title="it's over there">where is it?</p>
         <p><textarea id="submission-box" rows="10" placeholder="place each link on a new line" wrap="OFF" oninput="checkLength()"></textarea></p>
-        <p><button id="submit-button" onclick="submit()">submit</button></p>
+        <p><button id="submit-button" onclick="submit()" disabled>submit</button></p>
+        <h2 id="url-h2"><a id="url-a"></a></h2>
 
         <script>
             let textarea = document.getElementById("submission-box")
@@ -37,7 +38,28 @@
 
             function submit ()
             {
-
+                fetch("/create", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(textarea.value)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    textarea.hidden = true
+                    button.hidden = true
+                    document.getElementById("where-is-it").hidden = true
+                    document.getElementById("url-a").innerHTML = data.url
+                    if (data.invalidLength)
+                    {
+                        document.getElementById("url-a").href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                    }
+                    else
+                    {
+                        document.getElementById("url-a").href = data.url
+                    }
+                })
             }
 
             function checkLength ()
@@ -47,12 +69,16 @@
                     button.disabled = true
                     button.innerHTML = "must be 1000 characters or less"
                 }
+                else if (textarea.value.length == 0)
+                {
+                    button.disabled = true
+                    button.innerHTML = "submit"
+                }
                 else
                 {
                     button.disabled = false
                     button.innerHTML = "submit"
                 }
-                console.log("piss!")
             }
         </script>
     </body>
