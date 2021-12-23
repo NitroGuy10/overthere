@@ -26,21 +26,27 @@ def serve_index():
 @app.route("/create", methods=["POST"])
 def create_entry():
     """Create an entry in the database"""
-    data = request.data
-    # Ensure proper length
-    if len(data) > 1000:
+    data = request.get_json(silent=True)
+
+    # Ensure data is valid JSON and string is proper length
+    if data is None or "string" not in data or type(data["string"]) is str or \
+            len(data["string"]) > 1000 or len(data["string"]) == 0:
         return jsonify({"invalidLength": True, "url": request.base_url[:-6] + "full-commitment"})
+
     # Ensure the database is not full
     global next_entry_index
     if next_entry_index // word_list_length >= word_list_length:
         return jsonify({"databaseFull": True})
+
     # Add entry to the database
     connection = sqlite3.connect("overthere.db")
     cursor = connection.cursor()
-    print(request.data)
+    print(data)
+
     cursor.execute("INSERT INTO link_pages (url, links) VALUES (?, ?);",
-                   (generate_link_name(next_entry_index), request.data.replace(b"\\n", b"\n")))
+                   (generate_link_name(next_entry_index), data["string"]))
     connection.commit()
+
     print("Created new link page:", generate_link_name(next_entry_index))
     next_entry_index += 1
     return jsonify({"url": request.base_url[:-6] + generate_link_name(next_entry_index - 1)})
@@ -51,9 +57,10 @@ def serve_links(link_name):
     """Serve a link page from the database if it exists"""
     connection = sqlite3.connect("overthere.db")
     cursor = connection.cursor()
-    links = cursor.execute("SELECT links FROM link_pages WHERE url=?;", (link_name,)).fetchone()[0].decode()[1:-1]
-
-    return render_template("overthere.html.jinja", links=links.split("\n"), url=link_name)
+    links = cursor.execute("SELECT links FROM link_pages WHERE url=?;", (link_name,)).fetchone()
+    if links is None:
+        return app.send_static_file("nothing.html")
+    return render_template("overthere.html.jinja", links=links[0].split("\n"), url=link_name)
 
 
 if __name__ == "__main__":
@@ -81,9 +88,9 @@ if __name__ == "__main__":
     global plural_nouns
     global word_list_length
     with open("data/unchanging/adjectives.txt", "r") as adjective_file:
-        adjectives = adjective_file.read().split("\n")
+        adjectives = adjective_file.read().strip("\n").split("\n")
     with open("data/unchanging/plural_nouns.txt", "r") as plural_noun_file:
-        plural_nouns = plural_noun_file.read().split("\n")
+        plural_nouns = plural_noun_file.read().strip("\n").split("\n")
     word_list_length = len(adjectives)
 
     # Create the non-repeating sequences of random integers for this seed
@@ -108,8 +115,8 @@ if __name__ == "__main__":
     # TODO tests to run
     # sql injection
     # html injection
-    # database is full
     # create/ with string of max length
     # create/ with string too long
+    # spoofed "submit" with invalid JSON
 
     app.run(host="0.0.0.0", port=25565)

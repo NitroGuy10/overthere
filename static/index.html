@@ -23,10 +23,15 @@
                 font-size: 50px;
                 margin: 10px;
             }
+            a.invisible-link:link, a.invisible-link:visited, a.invisible-link:hover, a.invisible-link:active
+            {
+                color: #000;
+                text-decoration: none;
+            }
         </style>
     </head>
     <body onload="checkLength()">
-        <h1>overthere</h1>
+        <h1><a class="invisible-link" href=".">overthere</a></h1>
         <p id="where-is-it" title="it's over there">where is it?</p>
         <p><textarea id="submission-box" rows="10" placeholder="place each link on a new line" wrap="OFF" oninput="checkLength()"></textarea></p>
         <p><button id="submit-button" onclick="submit()" disabled>submit</button></p>
@@ -38,12 +43,16 @@
 
             function submit ()
             {
+                let data = {
+                    "string": textarea.value,
+                }
+
                 fetch("/create", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify(textarea.value)
+                    body: JSON.stringify(data)
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -80,6 +89,11 @@
                 {
                     button.disabled = true
                     button.innerHTML = "submit"
+                }
+                else if (textarea.value.match("(.*\n){10,}"))
+                {
+                    button.disabled = true
+                    button.innerHTML = "no more than 10 lines"
                 }
                 else
                 {

@@ -37,10 +37,15 @@
                 padding-bottom: 10px;
                 word-break: break-all;
             }
+            a.invisible-link:link, a.invisible-link:visited, a.invisible-link:hover, a.invisible-link:active
+            {
+                color: #000;
+                text-decoration: none;
+            }
         </style>
     </head>
     <body>
-        <h1>overthere</h1>
+        <h1><a class="invisible-link" href=".">overthere</a></h1>
         <h2>{{ url }}</h2>
         <p>whoever sent you this wants you to use these links</p>
         <br>
