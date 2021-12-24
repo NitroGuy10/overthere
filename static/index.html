@@ -44,7 +44,7 @@
             function submit ()
             {
                 let data = {
-                    "string": textarea.value,
+                    "string": textarea.value
                 }
 
                 fetch("/create", {
@@ -89,11 +89,6 @@
                 {
                     button.disabled = true
                     button.innerHTML = "submit"
-                }
-                else if (textarea.value.match("(.*\n){10,}"))
-                {
-                    button.disabled = true
-                    button.innerHTML = "no more than 10 lines"
                 }
                 else
                 {

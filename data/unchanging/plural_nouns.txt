@@ -1,4 +1,0 @@
-cows
-sheep
-tables
-bottles
